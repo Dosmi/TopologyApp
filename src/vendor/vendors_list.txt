@@ -1,0 +1,3 @@
+Make directories for external libraries here:
+glm [https://github.com/g-truc/glm] (at the time of developing, used GLM 0.9.9.8 https://github.com/g-truc/glm/releases/tag/0.9.9.8)
+imgui [https://github.com/ocornut/imgui] (at the time of developing, used v1.84.2 https://github.com/ocornut/imgui/releases/tag/v1.84.2)  

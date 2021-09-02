@@ -1,3 +1,6 @@
+src/vendor/*
+!src/vendor/vendors_list.txt
+
 # Prerequisites
 *.d
 
