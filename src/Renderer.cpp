@@ -31,7 +31,7 @@ void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
     // bind the index buffer:
     ib.bind();
     int num_drawing = ib.getCount();
-    std::cout << "Drawing " << num_drawing << " vertices." << std::endl;
+    //std::cout << "Drawing " << num_drawing << " vertices." << std::endl;
 
     GLCall(glPointSize(10));
     GLCall(glDrawElements(/* mode                        */ GL_POINTS,
