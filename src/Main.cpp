@@ -13,11 +13,15 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/rotate_vector.hpp"
+#include "glm/gtc/type_ptr.hpp"  // make_mat4 
 
 // ImGUI imports:
 #include "imgui/imgui.h" 
 #include "imgui/imgui_impl_opengl3.h" 
 #include "imgui/imgui_impl_glfw.h"
+
+// Import Arcball Camera Class:
+#include "camera/Arcball.h"
 
 
 #include <GL/glew.h>   
@@ -31,7 +35,11 @@
 #define SCREEN_WIDTH  1280 // 640
 #define SCREEN_HEIGHT 720 // 480
 
-#define DIMENSION 3 
+#define DIMENSION 3
+
+BallData m_arcball;
+bool m_mouse_pressed;
+
 
 struct PointCloud
 {
@@ -224,11 +232,85 @@ PointCloud generateSpherePC(const float& radius,
     return { points, indices, point_count, element_count };
 }
 
+
+void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    std::cout << button << "/" << action << std::endl;
+
+    double x, y;
+    //getting cursor position
+    glfwGetCursorPos(window, &x, &y);
+    std::cout << "Cursor Position at (" << x << " : " << y << std::endl;
+
+    // if released mouse:
+    if (m_mouse_pressed)
+    {
+        std::cout << "released ... " << x << " " << y << std::endl;
+        Ball_EndDrag(&m_arcball);
+        m_mouse_pressed = false;
+        return;
+    }
+
+    else
+    {
+        m_arcball.mouse_start_x = x;
+        m_arcball.mouse_start_y = y;
+        HVect vNow;
+        vNow.x = 2.f * (x - 0) / SCREEN_WIDTH - 1.f;
+        vNow.y = 2.f * (y - 0) / SCREEN_HEIGHT - 1.f;
+
+        Ball_Mouse(&m_arcball, vNow);
+
+        m_mouse_pressed = true;
+
+        switch (button)
+        {
+        case GLFW_MOUSE_BUTTON_LEFT:
+            Ball_BeginDrag(&m_arcball, LEFT);
+            break;
+        case GLFW_MOUSE_BUTTON_MIDDLE:
+            break;
+        case GLFW_MOUSE_BUTTON_RIGHT:
+            Ball_BeginDrag(&m_arcball, RIGHT);
+            m_arcball.current_distance = m_arcball.start_distance;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+
+void glfwCursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (m_mouse_pressed)
+    {
+        // write your drag code here`
+        std::cout << "dragging ... " << xpos << " " << ypos << std::endl;
+        Ball_Mouse(&m_arcball, xpos, ypos, SCREEN_WIDTH, SCREEN_HEIGHT);
+        Ball_Update(&m_arcball);
+    }
+    else
+    {   // just moving the mouse around ...
+        return;
+    }
+
+}
+
+void debugCamera(HMatrix rot)
+{
+    std::cout << "!camera-transform: \n"
+        << "!< (0) [0][0] " << rot[0][0] << " (4) [0][1] " << rot[0][1] << " (8) [0][2] " << rot[0][2] << " (12) [0][3] " << rot[0][3] << ">\n"
+        << "!< (1) [1][0] " << rot[1][0] << " (5) [1][1] " << rot[1][1] << " (9) [1][2] " << rot[1][2] << " (13) [1][3] " << rot[1][3] << ">\n"
+        << "!< (2) [2][0] " << rot[2][0] << " (6) [2][1]" << rot[2][1] << " (10) [2][2] " << rot[2][2] << " (14) [2][3] " << rot[2][3] << ">\n"
+        << "!< (3) [3][0] " << rot[3][0] << " (7) [3][1]" << rot[3][1] << " (11) [3][2] " << rot[3][2] << " (15) [3][3] " << rot[3][3] << ">\n]";
+}
+
 int main(void)
 {
     GLFWwindow* window;
 
-    /* Initialize the library */
+    // Initialize the Windowing Library:
     if (!glfwInit())
         return -1;
 
@@ -260,6 +342,19 @@ int main(void)
     {
         std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
     }
+
+    // set all the window mouse input callbacks for camera control:
+    glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
+    glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
+    glfwSetCursorPosCallback(window, glfwCursorPosCallback);
+
+    // 2. initialise camera parameters and camera:
+    m_arcball.start_distance = 200.5f;
+    m_arcball.current_distance = 200.5f;
+
+    // initialise arcball camera:
+    Ball_Init(&m_arcball);
+
 
     //glViewport(0.f, 0.f, SCREEN_WIDTH, SCREEN_HEIGHT);
     //glMatrixMode(GL_PROJECTION);
@@ -459,7 +554,16 @@ int main(void)
             // :end IMGUI
 
             // IMGUI Control matrix:
+            HMatrix rot;
+            Qt_ToMatrix(m_arcball.qNow, &rot);
+            //debugCamera(rot);
+            glm::mat4 arcball_rot = glm::make_mat4((float*)rot);
+
+
+
+
             glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), translation);
+            //glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), rot);
             model_matrix = glm::rotate(model_matrix, rotation_radians, glm::vec3(0.f, 1.f, 0.0f));
 
             glm::mat4 model_view_projection = projection_matrix * view_matrix * model_matrix;
@@ -474,7 +578,8 @@ int main(void)
             // ... therefore, instead of setting this one uniform:
             //basic_shader.setUniformMat4f("u_modelviewprojection", model_view_projection);
             // we now set two:
-            basic_shader.setUniformMat4f("u_modelview", view_matrix * model_matrix);
+            basic_shader.setUniformMat4f("u_modelview", arcball_rot);
+            //basic_shader.setUniformMat4f("u_modelview", view_matrix * model_matrix);
             basic_shader.setUniformMat4f("u_projection", projection_matrix);
 
             renderer.draw(va, ib, basic_shader);

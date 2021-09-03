@@ -159,6 +159,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\camera\Arcball.cpp" />
+    <ClCompile Include="src\camera\ArcballAux.cpp" />
+    <ClCompile Include="src\camera\ArcballMath.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -314,6 +317,9 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\camera\Arcball.h" />
+    <ClInclude Include="src\camera\ArcballAux.h" />
+    <ClInclude Include="src\camera\ArcballMath.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
