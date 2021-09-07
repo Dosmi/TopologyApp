@@ -11,6 +11,8 @@
 //#include "../../fakeirisgl.h"
 #include "ArcballAux.h"
 
+#include <iostream>
+
 #define LG_NSEGS 4
 #define NSEGS (1<<LG_NSEGS)
 #define RIMCOLOR()    glColor3i(255, 255, 255)
@@ -100,6 +102,12 @@ void Ball_Update(BallData *ball)
 
             // exponential zoom factor
             ball->current_distance = ball->start_distance * exp(delta);
+            //std::cout << "* bal: updating current distance: " << ball->current_distance << std::endl;
+            //std::cout << "ball->start_distance: " << ball->start_distance << std::endl;
+            //std::cout << "delta: " << delta << std::endl;
+            //std::cout << "sy: " << sy << ", cy: " << cy << std::endl;
+            //std::cout << "ball->viewport[1]: " << ball->viewport[1] << std::endl;
+            //std::cout << "ball->viewport[3]: " << ball->viewport[3] << std::endl;
 //            qDebug() << "* bal: updating current distance: " << ball->current_distance;
             break;
         }

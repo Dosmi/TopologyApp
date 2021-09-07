@@ -159,6 +159,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\AppGUI.cpp" />
+    <ClCompile Include="src\ShapePointCloud.cpp" />
+    <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\camera\Arcball.cpp" />
     <ClCompile Include="src\camera\ArcballAux.cpp" />
     <ClCompile Include="src\camera\ArcballMath.cpp" />
@@ -176,6 +179,7 @@
     <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
+    <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.shader" />
@@ -317,6 +321,9 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AppGUI.h" />
+    <ClInclude Include="src\ShapePointCloud.h" />
+    <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\camera\Arcball.h" />
     <ClInclude Include="src\camera\ArcballAux.h" />
     <ClInclude Include="src\camera\ArcballMath.h" />
@@ -617,6 +624,7 @@
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\VertexBufferLayout.h" />
+    <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
