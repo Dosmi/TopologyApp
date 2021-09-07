@@ -24,17 +24,15 @@ AppGUI::AppGUI(GLFWwindow* window)
     ImGui_ImplOpenGL3_Init((char*)glGetString(GL_NUM_SHADING_LANGUAGE_VERSIONS));
 }
 
-void AppGUI::newFrame()
+
+void AppGUI::renderPredefinedLayout()
 {
     // IMGUI:
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     // :end IMGUI
-}
 
-void AppGUI::renderPredefinedLayout()
-{
     // ImGUI Layout:
     {
         static float f = 0.0f;

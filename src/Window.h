@@ -2,6 +2,7 @@
 
 // Import Arcball Camera Class:
 #include "camera/Arcball.h"
+#include "ModelViewProjection.h"
 
 #include <GL/glew.h>   
 // NOTE: glew.h requires preprocessor definition GLEW_STATIC,
@@ -17,6 +18,7 @@ public:
 	Window();
 	void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	void glfwCursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+	ModelViewProjection getCameraMatricesMVP();
 
 	GLFWwindow* window;
 	int m_ScreenWidth, m_ScreenHeight;

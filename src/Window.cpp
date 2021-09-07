@@ -1,4 +1,5 @@
 #include "Window.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -170,5 +171,62 @@ void Window::glfwCursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     {   // just moving the mouse around ...
         return;
     }
+
+}
+
+ModelViewProjection Window::getCameraMatricesMVP()
+{
+
+    // IMGUI Control matrix:
+    HMatrix rot;
+    Qt_ToMatrix(m_arcball.qNow, &rot);
+    //debugCamera(rot);
+    glm::mat4 arcball_rot = glm::make_mat4((float*)rot);
+
+    // rotate object using quaternion rotations:
+    glMultMatrixf((float*)m_arcball.mNow);
+
+    glm::vec3 eyepos(0.f, 0.f, m_arcball.current_distance);
+    glm::vec3 lookatpos(0.f, 0.f, 0.f);
+    glm::vec3 upvect(0.f, 1.f, 0.f);
+
+    glm::vec3 campos = arcball_rot * glm::vec4(eyepos, 1.f);
+
+
+    // ------------------ Setting up the camera coordinate frame ------------------ //
+    glm::vec3 forward_direction = glm::normalize(lookatpos - campos);
+    // instead of using static right vector for rotations ...
+    // (which alone causes one rotation axis locking up) ...
+    // ... we rotate the 'right' vector together with the camera:
+    glm::vec3 right_direction = glm::vec3(-1.0, 0.0, campos.z);
+    right_direction = glm::vec3((arcball_rot * glm::vec4(right_direction, 1.0)));//.xyz;
+
+    // compute 'up direction' as cross product beween the right and forward directions, ...
+    // ... note, that 'right direction' is then recomputed
+    glm::vec3 up_direction = glm::normalize(glm::cross(right_direction, forward_direction));
+    right_direction = glm::normalize(glm::cross(campos, up_direction));
+
+    float zoom = 0.9;
+
+    //vec3 camera = campos + zoom * forward_direction;
+
+    // ------------------ End of setting up the camera coordinate frame ------------------ //
+
+
+    glm::mat4 view_matrix = glm::lookAt(/* Position of the camera                  */
+        campos,
+        /* Position where the camera is looking at */
+        lookatpos,
+        /* Normalized up vector, how the camera is oriented. Typically (0, 0, 1) */
+        up_direction);
+
+
+    glm::mat4 projection_matrix = glm::perspective(glm::radians(45.0f),
+        (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
+        0.1f, 100.f);
+
+    glm::mat4 model_matrix = glm::mat4(1.0f); // leave the object at origin
+
+    return { model_matrix, view_matrix, projection_matrix };
 
 }

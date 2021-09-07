@@ -12,7 +12,6 @@ class AppGUI
 {
 public:
 	AppGUI(GLFWwindow* window);
-	void newFrame();
 	void renderPredefinedLayout();
 	void shutdown();
 
