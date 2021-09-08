@@ -10,6 +10,9 @@
 #include "VertexArray.h"
 #include "Shader.h"
 
+#include "Curve.h"
+#include "Surface.h"
+
 #include "Application.h"
 #include "ShapePointCloud.h"
 #include "AppGUI.h"
@@ -69,6 +72,7 @@ int Application::run()
         glm::vec3 translation(0.f, 0.f, 0.f);
         float rotation_radians = 0.0f;
 
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(w1.window))
         {
@@ -80,8 +84,30 @@ int Application::run()
             {
                 shapePC.generateCirclePC(/* num_points */ onscreen_menus.points_to_generate,
                                          /* random?    */ false,
-                                         /* radius     */ 1.f,
-                                         /* center     */ center_coordinate);
+                                         /* radius     */ 10.f,
+                                         /* center     */ center_coordinate);                
+                
+
+                Curve circle = evalCircle(/* radius */ 0.5f,
+                                          /* steps  */ onscreen_menus.points_to_generate);
+
+                float* points = new float[circle.size() * DIMENSION];
+
+                //std::cout << "torus.VV.size() = " << circle.size() << std::endl;
+
+                int count = 0;
+                for (int i = 0; i < circle.size() * DIMENSION; i += DIMENSION)
+                {
+                    points[i] = circle[count].V.x;
+                    points[i + 1] = circle[count].V.y;
+                    points[i + 2] = circle[count].V.z;
+
+                    count++;
+                }
+                shapePC.point_array = points;
+
+
+
             }
             else if (onscreen_menus.show_sphere)
             {
@@ -96,6 +122,47 @@ int Application::run()
                                         /* random?    */ false,
                                         /* radius     */ 1.f,
                                         /* center     */ center_coordinate);
+
+                // profile circle:
+                Curve profile = evalCircle(/* radius */ 0.5f,
+                                           /* steps  */ onscreen_menus.points_to_generate);
+                // sweep circle:
+                Curve sweep = evalCircle(/* radius */ 2.f,
+                                         /* steps  */ onscreen_menus.points_to_generate);
+
+
+                Surface torus = makeGenCyl(profile, sweep, false);
+                //shapePC.point_array = NULL;
+                //shapePC.point_array = new float[torus.VV.size() * DIMENSION];
+                //shapePC.index_array = indices;
+                //num_points = points_to_generate;
+                //num_elements = element_count;
+
+                float* points = new float[torus.VV.size() * DIMENSION];
+                unsigned* indices = new unsigned[torus.VF.size() * DIMENSION];
+
+                int count = 0;
+                for (int i = 0; i < torus.VV.size() * DIMENSION; i+= DIMENSION)
+                {
+                    points[i] = torus.VV[count].x;
+                    points[i+1] = torus.VV[count].y;
+                    points[i+2] = torus.VV[count].z;
+
+                    count++;
+                }
+                count = 0;
+                for (int i = 0; i < torus.VF.size() * DIMENSION; i += DIMENSION)
+                {
+                    indices[i] = torus.VF[count][0];
+                    indices[i + 1] = torus.VF[count][1];
+                    indices[i + 2] = torus.VF[count][2];
+
+                    count++;
+                }
+
+                shapePC.point_array = points;
+                shapePC.index_array = indices;
+
             }
 
 
@@ -119,6 +186,10 @@ int Application::run()
             basic_shader.setUniformMat4f("u_model", MVP.model_matrix); // arcball_rot* look_at);
             basic_shader.setUniformMat4f("u_view", MVP.view_matrix); // arcball_rot* look_at);
             basic_shader.setUniformMat4f("u_projection", MVP.projection_matrix);
+
+            
+
+
 
 
             /* update colour: */

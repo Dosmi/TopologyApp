@@ -34,7 +34,9 @@ void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
     //std::cout << "Drawing " << num_drawing << " vertices." << std::endl;
 
     GLCall(glPointSize(10));
-    GLCall(glDrawElements(/* mode                        */ GL_POINTS,
+    //GLCall(glDisable(GL_CULL_FACE));
+
+    GLCall(glDrawElements(/* mode                        */ GL_TRIANGLES,
                           /* number of indices to render */ ib.getCount(),
                           /* type                        */ GL_UNSIGNED_INT,
                           /* pointer to the index buffer */ nullptr));
