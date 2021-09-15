@@ -28,6 +28,11 @@ struct CurvePoint
 
 typedef std::vector< CurvePoint > Curve;
 
+//class CurveObj
+//{
+//    std::vector<CurvePoint> points;
+//};
+
 
 ////////////////////////////////////////////////////////////////////////////
 // The following two functions take an array of control points (stored

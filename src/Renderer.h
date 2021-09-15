@@ -16,7 +16,12 @@ bool GLFunctionLog(const char* function, const char* file, int line);
 class Renderer
 {
 public:
+    Renderer();
     void clear() const;
+    void setDrawingMode(int mode);
     void draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
+
+private:
+    int m_drawing_mode; // GL_POLYGON, GL_POINTS, GL_TRIANGLEs ... 
 };
 

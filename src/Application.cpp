@@ -64,7 +64,8 @@ int Application::run()
         glm::vec3 center_coordinate(0.f, 0.f, 0.f);
 
         Shader basic_shader("res/shaders/basic.shader");
-        ShapePointCloud shapePC;
+        //ShapePointCloud shapePC;
+        Surface shapePC;
         Renderer renderer;
 
         float red_channel = 0.0f;
@@ -82,46 +83,80 @@ int Application::run()
 
             if (onscreen_menus.show_circle)
             {
-                shapePC.generateCirclePC(/* num_points */ onscreen_menus.points_to_generate,
-                                         /* random?    */ false,
-                                         /* radius     */ 10.f,
-                                         /* center     */ center_coordinate);                
+                //shapePC = generateCirclePC(/* num_points */ onscreen_menus.points_to_generate,
+                //                         /* random?    */ false,
+                //                         /* radius     */ 10.f,
+                //                         /* center     */ center_coordinate);    
                 
 
                 Curve circle = evalCircle(/* radius */ 0.5f,
                                           /* steps  */ onscreen_menus.points_to_generate);
 
-                float* points = new float[circle.size() * DIMENSION];
+                float* points = new float[2 * circle.size() * DIMENSION];
+                unsigned* indices = new unsigned[circle.size()];
 
                 //std::cout << "torus.VV.size() = " << circle.size() << std::endl;
 
                 int count = 0;
-                for (int i = 0; i < circle.size() * DIMENSION; i += DIMENSION)
+                for (int i = 0; i < 2 * circle.size() * DIMENSION; i += 2 * DIMENSION)
                 {
-                    points[i] = circle[count].V.x;
+                    points[i    ] = circle[count].V.x;
                     points[i + 1] = circle[count].V.y;
                     points[i + 2] = circle[count].V.z;
 
+                    points[i + 3] = circle[count].N.x;
+                    points[i + 4] = circle[count].N.y;
+                    points[i + 5] = circle[count].N.z;
+
+                    //indices[i] = count;
+
                     count++;
                 }
+
+                for (int i = 0; i < circle.size(); i++)
+                {
+                    indices[i] = i;
+                }
+
+
                 shapePC.point_array = points;
+                shapePC.index_array = indices;
+                shapePC.num_elements = 2 * circle.size() * DIMENSION;
+                shapePC.num_triangles = circle.size();
 
-
+                renderer.setDrawingMode(GL_LINE_STRIP);
 
             }
             else if (onscreen_menus.show_sphere)
             {
-                shapePC.generateSpherePC(/* radius */ 1.f,
-                                         /* squish_stretch_factor */ 1.f,
-                                         /* steps 1               */ onscreen_menus.points_to_generate,
-                                         /* steps 2               */ onscreen_menus.points_to_generate);
+                //renderer.setDrawingMode(GL_TRIANGLE_FAN);
+                renderer.setDrawingMode(GL_TRIANGLE_STRIP);
+
+                //renderer.setDrawingMode(GL_LINES);
+                //renderer.setDrawingMode(GL_POINTS);
+                shapePC = generateSphereSurface(/* radius */ 1.f,
+                    /* squish_stretch_factor */ 1.f,
+                    /* steps 1               */ onscreen_menus.points_to_generate,
+                    /* steps 2               */ onscreen_menus.points_to_generate);
+                //ShapePointCloud spherePC;
+                //spherePC.generateSpherePC(/* radius */ 1.f,
+                //                          /* squish_stretch_factor */ 1.f,
+                //                          /* steps 1               */ onscreen_menus.points_to_generate,
+                //                          /* steps 2               */ onscreen_menus.points_to_generate);
+
+                //shapePC.num_elements = spherePC.num_elements;
+                //shapePC.index_array  = spherePC.index_array;
+                //shapePC.point_array  = spherePC.point_array;
+                //shapePC.num_points   = spherePC.num_points;
+
             }
             else if (onscreen_menus.show_torus)
             {
-                shapePC.generateTorusPC(/* num_points */ onscreen_menus.points_to_generate,
-                                        /* random?    */ false,
-                                        /* radius     */ 1.f,
-                                        /* center     */ center_coordinate);
+                renderer.setDrawingMode(GL_TRIANGLES);
+                //shapePC = generateTorusPC(/* num_points */ onscreen_menus.points_to_generate,
+                //                        /* random?    */ false,
+                //                        /* radius     */ 1.f,
+                //                        /* center     */ center_coordinate);
 
                 // profile circle:
                 Curve profile = evalCircle(/* radius */ 0.5f,
@@ -131,37 +166,42 @@ int Application::run()
                                          /* steps  */ onscreen_menus.points_to_generate);
 
 
-                Surface torus = makeGenCyl(profile, sweep, false);
+                shapePC = makeGenCyl(profile, sweep, false);
                 //shapePC.point_array = NULL;
                 //shapePC.point_array = new float[torus.VV.size() * DIMENSION];
                 //shapePC.index_array = indices;
                 //num_points = points_to_generate;
                 //num_elements = element_count;
 
-                float* points = new float[torus.VV.size() * DIMENSION];
-                unsigned* indices = new unsigned[torus.VF.size() * DIMENSION];
+                //float* points = new float[torus.VV.size() * DIMENSION + torus.VN.size() * DIMENSION];
+                //unsigned* indices = new unsigned[torus.VF.size() * DIMENSION];
 
-                int count = 0;
-                for (int i = 0; i < torus.VV.size() * DIMENSION; i+= DIMENSION)
-                {
-                    points[i] = torus.VV[count].x;
-                    points[i+1] = torus.VV[count].y;
-                    points[i+2] = torus.VV[count].z;
+                //int count = 0;
+                //for (int i = 0; i < torus.VV.size() * DIMENSION + torus.VN.size() * DIMENSION; i+= 2*DIMENSION)
+                //{
+                //    points[i    ] = torus.VV[count].x;
+                //    points[i + 1] = torus.VV[count].y;
+                //    points[i + 2] = torus.VV[count].z;
 
-                    count++;
-                }
-                count = 0;
-                for (int i = 0; i < torus.VF.size() * DIMENSION; i += DIMENSION)
-                {
-                    indices[i] = torus.VF[count][0];
-                    indices[i + 1] = torus.VF[count][1];
-                    indices[i + 2] = torus.VF[count][2];
+                //    points[i + 3] = torus.VN[count].x;
+                //    points[i + 4] = torus.VN[count].y;
+                //    points[i + 5] = torus.VN[count].z;
 
-                    count++;
-                }
+                //    count++;
+                //}
+                //count = 0;
+                //for (int i = 0; i < torus.VF.size() * DIMENSION; i += DIMENSION)
+                //{
+                //    indices[i] = torus.VF[count][0];
+                //    indices[i + 1] = torus.VF[count][1];
+                //    indices[i + 2] = torus.VF[count][2];
 
-                shapePC.point_array = points;
-                shapePC.index_array = indices;
+                //    count++;
+                //}
+
+                //shapePC.point_array = points;
+                //shapePC.index_array = indices;
+                //shapePC.num_elements = torus.VV.size() * DIMENSION + torus.VN.size() * DIMENSION;
 
             }
 
@@ -170,11 +210,14 @@ int Application::run()
             VertexArray va;
             VertexBuffer vb(/* data */ shapePC.point_array, /* size */ shapePC.num_elements * sizeof(float));
             VertexBufferLayout layout;
+            // position atribute:
+            layout.push<float>(DIMENSION);
+            // normal attribute:
             layout.push<float>(DIMENSION);
             va.addBuffer(vb, layout);
 
             // Define index buffer:
-            IndexBuffer ib(/* data */ shapePC.index_array, /* count */ shapePC.num_elements);
+            IndexBuffer ib(/* data */ shapePC.index_array, /* count */ shapePC.num_triangles);//torus.VF.size() * DIMENSION);
 
 
             basic_shader.bind();
@@ -187,9 +230,11 @@ int Application::run()
             basic_shader.setUniformMat4f("u_view", MVP.view_matrix); // arcball_rot* look_at);
             basic_shader.setUniformMat4f("u_projection", MVP.projection_matrix);
 
-            
+            glm::vec3 camera_position = w1.getCameraPosition();
 
 
+            basic_shader.setUniform3f("u_light_position",  camera_position.x, camera_position.y, camera_position.z); // 1.f, 1.f, 1.f);
+            basic_shader.setUniform3f("u_camera_position", camera_position.x, camera_position.y, camera_position.z);
 
 
             /* update colour: */

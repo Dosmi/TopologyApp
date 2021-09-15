@@ -26,6 +26,12 @@ struct Surface
     std::vector< glm::vec3 > VV;
     std::vector< glm::vec3 > VN;
     std::vector< Tup3u > VF;
+
+    float* point_array;
+    unsigned int* index_array;
+    int    num_points;
+    int    num_elements;
+    int    num_triangles;
 };
 
 glm::vec3 flipNormals( glm::vec3 normals );
@@ -43,6 +49,12 @@ Surface makeSurfRev( const Curve& profile, unsigned steps );
 Surface makeGenCyl( const Curve& profile,
                     const Curve& sweep,
                     bool print);
+
+Surface generateSphereSurface(const float& radius, const float& squish_stretch_factor,
+                              const int& steps1, const int& steps2);
+
+Surface generateSphereSurface2(const float& radius, const float& squish_stretch_factor,
+                              const int& steps1, const int& steps2);
 
 void outputObjFile( std::ostream& out, const Surface& surface );
 

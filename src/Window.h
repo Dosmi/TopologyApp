@@ -19,6 +19,7 @@ public:
 	void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	void glfwCursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 	ModelViewProjection getCameraMatricesMVP();
+	glm::vec3 getCameraPosition();
 
 	GLFWwindow* window;
 	int m_ScreenWidth, m_ScreenHeight;

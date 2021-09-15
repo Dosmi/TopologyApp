@@ -230,3 +230,20 @@ ModelViewProjection Window::getCameraMatricesMVP()
     return { model_matrix, view_matrix, projection_matrix };
 
 }
+
+glm::vec3 Window::getCameraPosition()
+{
+    // IMGUI Control matrix:
+    HMatrix rot;
+    Qt_ToMatrix(m_arcball.qNow, &rot);
+    //debugCamera(rot);
+    glm::mat4 arcball_rot = glm::make_mat4((float*)rot);
+
+    glm::vec3 eyepos(0.f, 0.f, m_arcball.current_distance);
+    glm::vec3 lookatpos(0.f, 0.f, 0.f);
+    glm::vec3 upvect(0.f, 1.f, 0.f);
+
+    glm::vec3 campos = arcball_rot * glm::vec4(eyepos, 1.f);
+
+    return campos;
+}

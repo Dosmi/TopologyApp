@@ -1,4 +1,4 @@
-#include "curve.h"
+#include "Curve.h"
 //#include "extra.h"
 #ifdef WIN32
 #include <windows.h>
@@ -13,6 +13,7 @@
 #include <glm/glm.hpp>              // to enable swizzling .xyz on vectors
 #include <glm/gtx/norm.hpp>         // glm::length, glm::length2
 #include <glm/gtx/euler_angles.hpp> // glm::eulerAngleXYZ
+//#include <glm/gtx/inverse_transpose.hpp>
 
 using namespace std;
 
@@ -97,14 +98,9 @@ glm::vec3 rotateNormalAroundAxis ( CurvePoint pointOnCurve, float radians, char 
   glm::mat3 inversedtranspose = glm::inverse(topleftSubmiatrix); //topleftSubmiatrix.inverse();
 
   // finally, this multiplication rotates the vector (represented by a matrix)
-  // cerr << "DEBUGGING NORMALS: " << endl;
-  // cerr << "inversedtranspose" << endl;
-  // inversedtranspose.print();
-  // cerr << "* profileMatrix" << endl;
-  // profileMatrix.print();
-  glm::mat3 rotatedYmatrix = inversedtranspose * profileMatrix;
-  // cerr << "==" << endl;
-  // rotatedYmatrix.print();
+  //glm::mat3 rotatedYmatrix = inversedtranspose * profileMatrix;
+  glm::mat3 rotatedYmatrix = profileMatrix * inversedtranspose;
+
 
   // get the last column (where the homogenious vector is)
   glm::vec3 rotatedNormal = rotatedYmatrix[2]; //.getCol(2);

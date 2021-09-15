@@ -8,10 +8,10 @@
 
 
 AppGUI::AppGUI(GLFWwindow* window) 
-    : show_circle(true),
+    : show_circle(false),
       show_sphere(false),
-      show_torus(false),
-      points_to_generate(35)
+      show_torus(true),
+      points_to_generate(44)
 
 {
     // set up ImGUI here:
@@ -44,7 +44,7 @@ void AppGUI::renderPredefinedLayout()
 
         //ImGui::SliderFloat3("Translation", &translation.x, -500.f, 500.f);            // Edit 1 float using a slider from 0.0f to 1.0f
         //ImGui::SliderFloat("Rotate", &rotation_radians, -10.f, 10.f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::SliderInt("Points to Generate", &points_to_generate, 1, 1000);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::SliderInt("Points to Generate", &points_to_generate, 1, 100);            // Edit 1 float using a slider from 0.0f to 1.0f
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
